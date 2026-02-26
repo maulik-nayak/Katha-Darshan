@@ -10,6 +10,7 @@
             --accent: #00f2ff;
             --glass: rgba(15, 23, 42, 0.8);
             --border: rgba(255, 255, 255, 0.1);
+            /* This variable will be updated by JavaScript */
             --sprite-path: url('/static/assets/Samurai/Idle.png');
         }
 
@@ -20,23 +21,20 @@
             background-image: linear-gradient(rgba(10, 10, 15, 0.7), rgba(10, 10, 15, 0.7)), 
                               url('https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2070');
             background-size: cover; background-attachment: fixed;
-            color: white; display: flex; height: 100vh; width: 100vw; overflow: hidden;
+            color: white; display: flex; height: 100vh; overflow: hidden;
         }
 
         #app-container { display: flex; width: 100%; height: 100%; backdrop-filter: blur(10px); }
 
-        /* Sidebar */
         #memoryPanel {
-            width: 350px; background: rgba(0, 0, 0, 0.4); border-right: 1px solid var(--border);
+            width: 350px; background: rgba(0, 0, 0, 0.4);
+            border-right: 1px solid var(--border);
             display: flex; flex-direction: column; padding: 40px 25px; overflow-y: auto;
         }
 
         #main { flex: 1; display: flex; flex-direction: column; padding: 40px; position: relative; }
 
-        #top-bar {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 20px; height: 150px;
-        }
+        #top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 
         #leo-logo h1 {
             font-size: 2.5rem; margin: 0; font-weight: 800;
@@ -44,13 +42,10 @@
             -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        /* --- SAMURAI STAGE --- */
-        #leo-stage { flex: 1; position: relative; height: 100%; }
-
-        #leo-container {
-            position: absolute; left: 50%; bottom: 0;
-            transform: translateX(-50%); transition: left 3s ease-in-out;
-            display: flex; flex-direction: column; align-items: center;
+        /* --- SPRITE STAGE --- */
+        #leo-stage {
+            height: 180px; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; position: relative;
         }
 
         #leo-sprite {
@@ -58,28 +53,27 @@
             background-image: var(--sprite-path);
             background-repeat: no-repeat;
             image-rendering: pixelated;
+            z-index: 10;
         }
 
-        /* Animations mapped to your frame counts */
-        .idle { animation: p6 0.8s steps(6) infinite; }
-        .walk { animation: p8 0.8s steps(8) infinite; }
-        .run  { animation: p8 0.6s steps(8) infinite; }
-        .attack_1 { animation: p5 0.5s steps(5) forwards; }
+        /* Sprite Animations based on frame counts [cite: 141, 151] */
+        .anim-idle { animation: play6 0.8s steps(6) infinite; }
+        .anim-run  { animation: play8 0.8s steps(8) infinite; }
 
-        @keyframes p5 { from { background-position: 0; } to { background-position: -640px; } }
-        @keyframes p6 { from { background-position: 0; } to { background-position: -768px; } }
-        @keyframes p8 { from { background-position: 0; } to { background-position: -1024px; } }
+        @keyframes play6 { from { background-position: 0px; } to { background-position: -768px; } }
+        @keyframes play8 { from { background-position: 0px; } to { background-position: -1024px; } }
 
-        /* Clock */
-        #clock-widget { text-align: right; background: var(--glass); padding: 10px 20px; border-radius: 12px; border: 1px solid var(--border); }
-        #clock { font-family: monospace; font-size: 1.8rem; color: var(--accent); }
+        .shadow {
+            width: 60px; height: 10px; background: rgba(0,0,0,0.3);
+            border-radius: 50%; filter: blur(4px); margin-top: -10px;
+        }
 
-        /* Chat UI */
         #chat {
             flex: 1; background: var(--glass); border: 1px solid var(--border);
             border-radius: 20px; padding: 30px; overflow-y: auto;
             display: flex; flex-direction: column; gap: 20px;
         }
+
         .message { max-width: 70%; padding: 15px 20px; border-radius: 18px; line-height: 1.5; }
         .user { align-self: flex-end; background: var(--primary); }
         .assistant { align-self: flex-start; background: rgba(255,255,255,0.05); border: 1px solid var(--border); }
@@ -87,48 +81,32 @@
         #input-area { margin-top: 20px; display: flex; gap: 10px; }
         input { flex: 1; background: var(--glass); border: 1px solid var(--border); padding: 15px; border-radius: 12px; color: white; outline: none; }
         button { background: var(--primary); color: white; border: none; padding: 0 25px; border-radius: 12px; cursor: pointer; font-weight: bold; }
-
-        .section-label { color: var(--accent); font-size: 0.8rem; margin-bottom: 15px; letter-spacing: 1px; }
-        .memoryItem { background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 0.85rem; }
     </style>
 </head>
 <body>
 
 <div id="app-container">
     <div id="memoryPanel">
-        <div class="section">
-            <div class="section-label">STORY CONTEXT</div>
-            <div id="shortMemory"></div>
-        </div>
-        <div class="section">
-            <div class="section-label">FOSSILIZED IDEAS</div>
-            <div id="longMemory"></div>
-        </div>
+        <div style="color: var(--accent); font-weight: bold; margin-bottom: 10px;">SAMURAI ACTIVE</div>
+        <div id="shortMemory"></div>
     </div>
 
     <div id="main">
         <div id="top-bar">
             <div id="leo-logo"><h1>Leo</h1><p>CREATIVE CO-PILOT</p></div>
-            
             <div id="leo-stage">
-                <div id="leo-container">
-                    <div id="leo-sprite" class="idle"></div>
-                    <div style="width:50px; height:8px; background:rgba(0,0,0,0.3); border-radius:50%; filter:blur(3px); margin-top:-5px;"></div>
-                </div>
+                <div id="leo-sprite" class="anim-idle"></div>
+                <div class="shadow"></div>
             </div>
-
-            <div id="clock-widget">
-                <div id="clock">00:00</div>
-                <div id="date">FEB 2026</div>
-            </div>
+            <div id="clock-widget"><div id="clock" style="font-family: monospace; font-size: 1.5rem; color: var(--accent);">00:00</div></div>
         </div>
 
         <div id="chat">
-            <div class="message assistant"><strong>Leo:</strong> Old systems restored. Samurai standing by.</div>
+            <div class="message assistant"><strong>Leo:</strong> Samurai systems live. What's the mission?</div>
         </div>
 
         <div id="input-area">
-            <input type="text" id="userInput" placeholder="Collaborate with Leo..." autocomplete="off">
+            <input type="text" id="userInput" placeholder="Collaborate with Leo..." autocomplete="off" />
             <button onclick="sendMessage()">SEND</button>
         </div>
     </div>
@@ -136,27 +114,23 @@
 
 <script>
     const sprite = document.getElementById('leo-sprite');
-    const container = document.getElementById('leo-container');
-    const inputField = document.getElementById("userInput");
 
-    function performAction(action, move = false) {
-        const fileName = action === 'attack_1' ? 'Attack_1.png' : action.charAt(0).toUpperCase() + action.slice(1) + ".png";
-        document.documentElement.style.setProperty('--sprite-path', `url('/static/assets/Samurai/${fileName}')`);
-        sprite.className = action;
-
-        if (move) {
-            const randomX = Math.floor(Math.random() * 60) + 20;
-            container.style.left = randomX + "%";
-        }
+    function setAction(type) {
+        // Filenames match your metadata: Idle.png and Run.png [cite: 141, 151, 171, 317, 327]
+        const fileName = type === 'run' ? 'Run.png' : 'Idle.png';
+        const path = `url('/static/assets/Samurai/${fileName}')`;
+        document.documentElement.style.setProperty('--sprite-path', path);
+        sprite.className = type === 'run' ? 'anim-run' : 'anim-idle';
     }
 
     async function sendMessage() {
-        const text = inputField.value.trim();
+        const input = document.getElementById("userInput");
+        const text = input.value.trim();
         if (!text) return;
 
         addMessage("Writer", text, "user");
-        inputField.value = "";
-        performAction('run', true); // Run while thinking
+        input.value = "";
+        setAction('run');
 
         try {
             const res = await fetch("/chat", {
@@ -165,17 +139,12 @@
                 body: JSON.stringify({ text: text })
             });
             const data = await res.json();
-            
-            performAction('attack_1'); // Attack on response
-            setTimeout(() => performAction('idle'), 600);
-            
             addMessage("Leo", data.response, "assistant");
+            setAction('idle');
         } catch (e) {
-            performAction('idle');
+            setAction('idle');
         }
     }
-
-    inputField.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
 
     function addMessage(s, t, c) {
         const m = document.createElement("div");
@@ -184,13 +153,6 @@
         document.getElementById('chat').appendChild(m);
         document.getElementById('chat').scrollTop = document.getElementById('chat').scrollHeight;
     }
-
-    setInterval(() => {
-        if (sprite.className === 'idle') {
-            performAction('walk', true); // Periodic roaming
-            setTimeout(() => performAction('idle'), 3000);
-        }
-    }, 12000);
 
     function updateClock() {
         const now = new Date();
