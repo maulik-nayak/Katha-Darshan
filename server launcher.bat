@@ -4,7 +4,7 @@ cd /d "%~dp0"
 
 echo [SYSTEM] Starting Chrome...
 :: Launch Chrome first
-start "http://127.0.0.1:8000"
+start "" "http://127.0.0.1:8000"
 
 echo [SYSTEM] Warming up Leo's brain...
 :: Small delay to let the system breathe
