@@ -84,6 +84,36 @@
             letter-spacing: 1px;
         }
 
+
+        #leo-face-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .eye {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+        }
+
+        .pupil {
+            width: 20px;
+            height: 20px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--accent);
+            transition: transform 0.1s ease-out;
+        }
+
         /* Clock Widget - Integrated into top-right */
         #clock-widget {
             text-align: right;
@@ -297,6 +327,11 @@
                 <p>CREATIVE CO-PILOT</p>
             </div>
             
+            <div id="leo-face-container">
+                <div class="eye left"><div class="pupil"></div></div>
+                <div class="eye right"><div class="pupil"></div></div>
+            </div>
+
             <div id="clock-widget">
                 <div id="clock">00:00</div>
                 <div id="date">FEB 2026</div>
@@ -376,6 +411,24 @@
         document.getElementById("clock").textContent = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
         document.getElementById("date").textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
     }
+
+    document.addEventListener('mousemove', (e) => {
+        const pupils = document.querySelectorAll('.pupil');
+        pupils.forEach(pupil => {
+            // Calculate the angle and distance for pupil movement
+            const rect = pupil.getBoundingClientRect();
+            const x = rect.left + rect.width / 2;
+            const y = rect.top + rect.height / 2;
+            
+            const angle = Math.atan2(e.pageY - y, e.pageX - x);
+            const distance = 15; // How far the pupil can move
+            
+            const moveX = Math.cos(angle) * distance;
+            const moveY = Math.sin(angle) * distance;
+            
+            pupil.style.transform = `translate(${moveX}px, ${moveY}px)`;
+        });
+    });
 
     inputField.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
     setInterval(updateClock, 1000);
