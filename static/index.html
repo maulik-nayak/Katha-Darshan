@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leo | Creative Partner</title>
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --accent: #00f2ff;
+            --glass: rgba(15, 23, 42, 0.8);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #0f172a;
+            /* High-res background with subtle dark overlay */
+            background-image: linear-gradient(rgba(10, 10, 15, 0.7), rgba(10, 10, 15, 0.7)), 
+                              url('https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: white;
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        /* Full-Width Layout Container */
+        #app-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Side Panel - Memory */
+        #memoryPanel {
+            width: 350px;
+            background: rgba(0, 0, 0, 0.4);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 40px 25px;
+            overflow-y: auto;
+        }
+
+        /* Main Workspace - Fills the remaining space */
+        #main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            position: relative;
+        }
+
+        /* Sleek Top Bar */
+        #top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        #leo-logo h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        #leo-logo p {
+            color: #94a3b8;
+            margin: 5px 0 0 0;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+
+        /* Clock Widget - Integrated into top-right */
+        #clock-widget {
+            text-align: right;
+            padding: 10px 20px;
+            background: var(--glass);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        #clock {
+            font-family: 'monospace';
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin: 0;
+        }
+
+        #date {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: #94a3b8;
+        }
+
+        /* Chat Container - Expands to fill screen */
+        #chat {
+            flex: 1;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 16px 22px;
+            border-radius: 20px;
+            line-height: 1.6;
+            font-size: 1.05rem;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user {
+            align-self: flex-end;
+            background: var(--primary);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+
+        .assistant {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+
+        /* Input area */
+        #input-area {
+            margin-top: 25px;
+            display: flex;
+            gap: 15px;
+        }
+
+        input {
+            flex: 1;
+            background: var(--glass);
+            border: 1px solid var(--border);
+            padding: 18px 25px;
+            border-radius: 15px;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--accent);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 35px;
+            border-radius: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+        }
+
+        /* Memory Item Styling */
+        .section-label {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-label::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .memoryItem {
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            color: #cbd5e1;
+            margin-bottom: 12px;
+            border: 1px solid transparent;
+            transition: 0.3s;
+        }
+
+        .memoryItem:hover {
+            border-color: var(--primary);
+            background: rgba(255,255,255,0.06);
+        }
+
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        
+        /* --- Mobile Responsiveness --- */
+        @media (max-width: 768px) {
+            #app-container {
+                flex-direction: column; /* Stack sidebar and chat */
+                overflow-y: auto;
+            }
+
+            #memoryPanel {
+                width: 100%; /* Sidebar takes full width */
+                order: 2;    /* Moves sidebar below the chat */
+                border-right: none;
+                border-top: 1px solid var(--border);
+                padding: 20px;
+            }
+
+            #main {
+                width: 100%;
+                padding: 15px;
+                order: 1;    /* Chat stays on top */
+                height: auto;
+                min-height: 80vh;
+            }
+
+            #chat {
+                height: 400px; /* Fixed height so it doesn't grow forever */
+            }
+
+            .message {
+                max-width: 90%; /* Use more screen space on mobile */
+            }
+
+            #top-bar h1 {
+                font-size: 1.8rem;
+            }
+
+            #clock-widget {
+                padding: 5px 10px;
+            }
+
+            #clock {
+                font-size: 1.2rem;
+            }
+        }
+    
+    
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <div id="memoryPanel">
+
+        <div class="section">
+            <div class="section-label">Story Context</div>
+            <div id="shortMemory"></div>
+        </div>
+
+        <div class="section">
+            <div class="section-label">Fossilized Ideas</div>
+            <div id="longMemory"></div>
+        </div>
+    </div>
+
+    <div id="main">
+        <div id="top-bar">
+            <div id="leo-logo">
+                <h1>Leo</h1>
+                <p>CREATIVE CO-PILOT</p>
+            </div>
+            
+            <div id="clock-widget">
+                <div id="clock">00:00</div>
+                <div id="date">FEB 2026</div>
+            </div>
+        </div>
+
+        <div id="chat">
+            <div class="message assistant">
+                <strong>Leo:</strong> Yo! I'm locked in. What's the plan for our story today? Give me a prompt and let's cook.
+            </div>
+        </div>
+
+        <div id="input-area">
+            <input type="text" id="userInput" placeholder="Collaborate with Leo..." autocomplete="off" />
+            <button onclick="sendMessage()">SEND</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const chatDiv = document.getElementById("chat");
+    const inputField = document.getElementById("userInput");
+
+    async function sendMessage() {
+        const text = inputField.value.trim();
+        if (!text) return;
+
+        addMessage("Writer", text, "user");
+        inputField.value = "";
+
+        const thinkingDiv = document.createElement("div");
+        thinkingDiv.className = "message assistant";
+        thinkingDiv.innerHTML = "<strong>Leo:</strong> Processing...";
+        chatDiv.appendChild(thinkingDiv);
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+
+        try {
+            const response = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: text })
+            });
+            const data = await response.json();
+            
+            thinkingDiv.remove();
+            addMessage("Leo", data.response, "assistant");
+            loadMemory();
+        } catch (err) {
+            thinkingDiv.innerHTML = "<strong>Leo:</strong> Connection lost. Is the server running, boss?";
+        }
+    }
+
+    function addMessage(sender, text, className) {
+        const message = document.createElement("div");
+        message.className = `message ${className}`;
+        message.innerHTML = `<strong>${sender}:</strong> ${text}`;
+        chatDiv.appendChild(message);
+        chatDiv.scrollTo({ top: chatDiv.scrollHeight, behavior: 'smooth' });
+        return message;
+    }
+
+    async function loadMemory() {
+        try {
+            const response = await fetch("/memory");
+            const data = await response.json();
+            document.getElementById("shortMemory").innerHTML = data.short_term.map(item => 
+                `<div class="memoryItem">${item.content}</div>`
+            ).join('');
+            document.getElementById("longMemory").innerHTML = data.long_term.map(item => 
+                `<div class="memoryItem">${item}</div>`
+            ).join('');
+        } catch (e) {}
+    }
+
+    function updateClock() {
+        const now = new Date();
+        document.getElementById("clock").textContent = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+        document.getElementById("date").textContent = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    }
+
+    inputField.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMessage(); });
+    setInterval(updateClock, 1000);
+    updateClock();
+    loadMemory();
+</script>
+
+</body>
+</html>
